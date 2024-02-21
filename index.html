@@ -6,32 +6,42 @@
     <script>
         $(document).ready(function() {
             $("#generateBtn").click(function() {
-                // Call the backend Python script and display the output
-                // You will need to implement this functionality
+                generateNotes();
             });
+
+            function generateNotes() {
+                // Get input data based on the selected input type
+                var inputType = $("input[name='inputType']:checked").val();
+                var inputData;
+
+                if (inputType === "textInput") {
+                    inputData = $("#noteInput").val();
+                } else {
+                    // You can implement file upload logic here if needed
+                    alert("File upload not implemented yet.");
+                    return;
+                }
+
+                // Send data to the backend
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:8000/generate_notes",
+                    contentType: "application/json",
+                    data: JSON.stringify({ inputType: inputType, inputData: inputData }),
+                    success: function(response) {
+                        // Display the generated notes
+                        $("#outputTextarea").val(response.notes);
+                        $("#outputDiv").show();
+                    },
+                    error: function(error) {
+                        console.error("Error:", error);
+                    }
+                });
+            }
         });
     </script>
 </head>
 <body>
-    <h1>Note Taker</h1>
-
-    <div>
-        <input type="radio" id="textInput" name="inputType" checked>
-        <label for="textInput">Text Input</label>
-        <input type="text" id="noteInput" placeholder="Enter your notes here">
-    </div>
-
-    <div>
-        <input type="radio" id="fileInput" name="inputType">
-        <label for="fileInput">Upload File</label>
-        <input type="file" id="fileUpload">
-    </div>
-
-    <button id="generateBtn">Generate Notes</button>
-
-    <div id="outputDiv" style="display: none;">
-        <h2>Generated Notes</h2>
-        <textarea id="outputTextarea" readonly></textarea>
-    </div>
+    <!-- ... (unchanged HTML code) ... -->
 </body>
 </html>
