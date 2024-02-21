@@ -3,7 +3,9 @@ import openai
 
 app = Flask(__name__)
 
-OPENAI_API_KEY = ""
+# read file OPENAI_API_KEY in the root directory
+with open('OPENAI_API_KEY') as f:
+    OPENAI_API_KEY = f.read().strip()
 
 # Replace 'your-api-key' with your OpenAI API key
 openai.api_key = OPENAI_API_KEY
