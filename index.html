@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Note Taker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#generateBtn").click(function() {
+                // Call the backend Python script and display the output
+                // You will need to implement this functionality
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Note Taker</h1>
+
+    <div>
+        <input type="radio" id="textInput" name="inputType" checked>
+        <label for="textInput">Text Input</label>
+        <input type="text" id="noteInput" placeholder="Enter your notes here">
+    </div>
+
+    <div>
+        <input type="radio" id="fileInput" name="inputType">
+        <label for="fileInput">Upload File</label>
+        <input type="file" id="fileUpload">
+    </div>
+
+    <button id="generateBtn">Generate Notes</button>
+
+    <div id="outputDiv" style="display: none;">
+        <h2>Generated Notes</h2>
+        <textarea id="outputTextarea" readonly></textarea>
+    </div>
+</body>
+</html>
