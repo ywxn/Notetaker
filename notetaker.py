@@ -1,14 +1,13 @@
 from flask import Flask, request, jsonify
-import openai
+from openai import OpenAI
 
 app = Flask(__name__)
 
-# read file OPENAI_API_KEY in the root directory
-with open('OPENAI_API_KEY') as f:
-    OPENAI_API_KEY = f.read().strip()
-
-# Replace 'your-api-key' with your OpenAI API key
-openai.api_key = OPENAI_API_KEY
+# Read the OpenAI API key from a file
+with open('OPENAI_API_KEY', 'r') as file:
+    api_key = file.read().strip()
+# Set the OpenAI API key
+client = OpenAI(api_key=api_key)
 
 @app.route('/generate_notes', methods=['POST'])
 def generate_notes():
@@ -17,17 +16,24 @@ def generate_notes():
     input_type = data.get('inputType')
     input_data = data.get('inputData')
 
-    # Process the input data and generate notes using the OpenAI API
-    # Adjust the OpenAI API call based on your specific needs
-    response = openai.Completion.create(
-        engine="text-davinci-003",
+    # Validate the input
+    if not input_type or not input_data:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    try:
+        # Process the input data and generate notes using the OpenAI API
+        # Adjust the OpenAI API call based on your specific needs
+        response = client.completions.create(engine="text-davinci-003",
         prompt=input_data,
-        max_tokens=150
-    )
+        max_tokens=150)
 
-    notes = response.choices[0].text.strip()
+        notes = response.choices[0].text.strip()
 
-    return jsonify({'notes': notes})
+        # Return the generated notes as a JSON response
+        return jsonify({'notes': notes})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run(port=8888)
