@@ -44,7 +44,6 @@ def generate_notes():
     # Return a JSON response with a generic error message
     return jsonify({'error': 'Internal Server Error'}), 500
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
-    # open the flask app in the default browse
+def open_browser():
+    # Open the default web browser with the Flask app URL
+    webbrowser.open('http://127.0.0.1:5000/')
