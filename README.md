@@ -1,2 +1,3 @@
 # Notetaker
-CS201 project
+
+AI-Powered Notetaker
