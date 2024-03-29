@@ -16,6 +16,7 @@ with open("OPENAI_API_KEY", "r") as file:
 # Set the OpenAI API key
 client = OpenAI(api_key=api_key)
 
+
 # Helper functions
 def parse_text(file_path):
     # check if plain text file
@@ -29,6 +30,7 @@ def parse_docx(file_path):
     text = " ".join([paragraph.text for paragraph in doc.paragraphs])
     return text
 
+
 def parse_pdf(file_path):
     pdf_file_obj = open(file_path, "rb")
     pdf_reader = PyPDF2.PdfReader(pdf_file_obj)
@@ -39,9 +41,11 @@ def parse_pdf(file_path):
     pdf_file_obj.close()
     return text
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/generate_notes", methods=["POST"])
 def generate_notes():
@@ -88,6 +92,7 @@ def generate_notes():
         app.logger.error("An error occurred: %s", str(e))
 
     return jsonify({"error": "Internal Server Error"}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
