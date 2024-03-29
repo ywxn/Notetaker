@@ -30,15 +30,6 @@ def parse_pdf(file_path):
     return text
 
 
-def parse_input(input_type, input_data):
-    if input_type == "pdf":
-        return parse_pdf(input_data)
-    elif input_type == "docx":
-        return parse_docx(input_data)
-    else:
-        return input_data
-
-
 # Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -53,7 +44,18 @@ def index():
 def generate_notes():
     input_type = request.form.get("inputType")
 
-    input_data = parse_input(input_type, request.files.get("inputData"))
+    if input_type == "pdf":
+        file = request.files.get("file")
+        file.save("temp.pdf")
+        input_data = parse_pdf("temp.pdf")
+        file.rm("temp.pdf")
+    elif input_type == "docx":
+        file = request.files.get("file")
+        file.save("temp.docx")
+        input_data = parse_docx("temp.docx")
+        file.rm("temp.docx")
+    else:
+        input_data = request.form.get("inputData")
 
     # Validate the input
     if not input_type or not input_data:
