@@ -83,7 +83,7 @@ def generate_notes():
             model="gpt-3.5-turbo-instruct", prompt=prompt, max_tokens=200
         )
 
-        notes = completion.choices[0].text.strip().split("\n")
+        notes = completion.choices[0].text
 
         # Return the generated notes as a JSON response
         return jsonify({"notes": notes})
