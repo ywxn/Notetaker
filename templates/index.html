@@ -1,92 +1,107 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Notetaker</title>
-        <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css') }}">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            $(document).ready(function () {
-                $("#generateBtn").click(function () {
-                    generateNotes();
-                });
+  <head>
+    <title>Notetaker</title>
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='icon.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/stylesheet.css') }}"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#generateBtn").click(function () {
+          generateNotes();
+        });
 
-                function generateNotes() {
-                    // Get input data based on the selected input type
-                    var inputType = $("input[name='inputType']:checked").val();
-                    var inputData;
+        function generateNotes() {
+          // Get input data based on the selected input type
+          var inputType = $("input[name='inputType']:checked").val();
+          var inputData;
 
-                    if (inputType === "textInput") {
-                        inputData = $("#noteInput").val();
-                    } else {
-                        // Check if a file is selected
-                        var fileInput = $("#fileUpload")[0];
-                        var file = fileInput.files[0];
+          if (inputType === "textInput") {
+            inputData = $("#noteInput").val();
+            sendToBackend(inputType, inputData);
+          } else {
+            // Check if a file is selected
+            var fileInput = $("#fileUpload")[0];
+            var file = fileInput.files[0];
 
-                        if (!file) {
-                            // If no file is selected, proceed with text input
-                            inputData = $("#noteInput").val();
-                        } else {
-                            // Read the contents of the selected file
-                            var reader = new FileReader();
-                            reader.onload = function (e) {
-                                inputData = e.target.result;
+            if (!file) {
+              // If no file is selected, do nothing
+              return;
+            } else {
+              // Check if the file is a text file
+              if (file.type === "text/plain") {
+                var reader = new FileReader();
 
-                                // Send data to the backend
-                                sendToBackend(inputType, inputData);
-                            };
-                            reader.readAsText(file);
+                reader.onload = function (e) {
+                  var text = e.target.result;
+                  sendToBackend(inputType, text);
+                };
 
-                            return;
-                        }
-                    }
+                reader.readAsText(file);
+              } else {
+                // Create a FormData object for non-text files
+                var formData = new FormData();
+                formData.append("file", file);
 
-                    // Send data to the backend
-                    sendToBackend(inputType, inputData);
-                }
+                // Send data to the backend
+                sendToBackend(inputType, formData);
+              }
+            }
+          }
+        }
 
-                function sendToBackend(inputType, inputData) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/generate_notes",
-                        contentType: "application/json",
-                        data: JSON.stringify({
-                            inputType: inputType,
-                            inputData: inputData,
-                        }),
-                        success: function (response) {
-                            // Display the generated notes
-                            $("#outputTextarea").val(response.notes);
-                            $("#outputDiv").show();
-                        },
-                        error: function (error) {
-                            console.error("Error:", error);
-                        },
-                    });
-                }
-            });
-        </script>
-    </head>
-    <body>
-        <h1>Note Taker</h1>
+        function sendToBackend(inputType, inputData) {
+          $.ajax({
+            type: "POST",
+            url: "/generate_notes",
+            data: inputData,
+            processData: false, // tell jQuery not to process the data
+            contentType: false, // tell jQuery not to set contentType
+            success: function (response) {
+              // Display the generated notes
+              $("#outputTextarea").val(response.notes);
+              $("#outputDiv").show();
+            },
+            error: function (error) {
+              console.error("Error:", error);
+            },
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Note Taker</h1>
 
-        <div>
-            <input type="radio" id="textInput" name="inputType" value="textInput" checked />
-            <label for="textInput">Text Input</label>
-            <input type="text" id="noteInput" placeholder="Enter text here" />
-        </div>
+    <div>
+      <input
+        type="radio"
+        id="textInput"
+        name="inputType"
+        value="textInput"
+        checked
+      />
+      <label for="textInput">Text Input</label>
+      <input type="text" id="noteInput" placeholder="Enter text here" />
+    </div>
 
-        <div>
-            <input type="radio" id="fileInput" name="inputType" value="fileInput" />
-            <label for="fileInput">Upload File</label>
-            <input type="file" id="fileUpload" />
-        </div>
+    <div>
+      <input type="radio" id="fileInput" name="inputType" value="fileInput" />
+      <label for="fileInput">Upload File</label>
+      <input type="file" id="fileUpload" />
+    </div>
 
-        <button id="generateBtn">Generate Notes</button>
+    <button id="generateBtn">Generate Notes</button>
 
-        <div id="outputDiv" style="display: none">
-            <h2>Generated Notes</h2>
-            <textarea id="outputTextarea" readonly></textarea>
-        </div>
-    </body>
+    <div id="outputDiv" style="display: none">
+      <h2>Generated Notes</h2>
+      <textarea id="outputTextarea" readonly></textarea>
+    </div>
+  </body>
 </html>
