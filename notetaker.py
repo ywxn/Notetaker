@@ -77,6 +77,9 @@ def generate_notes():
         prompt = "Extract important information from the provided input enclosed in triple backticks and present it in a bulleted list of notes:\n\n"
         prompt += f"```{input_data}```\n"
         prompt += "Notes:\n- "
+        
+        # limiting prompt to 2000 tokens
+        prompt = prompt[:2000]
 
         # Process the input data and generate notes using the OpenAI API
         completion = client.completions.create(
