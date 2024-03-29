@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Notetaker</title>
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='icon.png') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/stylesheet.css') }}"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#generateBtn").click(function () {
+          generateNotes();
+        });
+
+        function generateNotes() {
+          var inputType = $("input[name='inputType']:checked").val();
+          var formData = new FormData(); // Initialize FormData object
+
+          if (inputType === "textInput") {
+            var noteInput = $("#noteInput").val();
+            formData.append("inputType", inputType);
+            formData.append("noteInput", noteInput);
+          } else {
+            var fileUpload = $("#fileUpload")[0].files[0];
+            formData.append("inputType", inputType);
+            formData.append("file", fileUpload);
+          }
+
+          // Send data to the backend
+          sendToBackend(formData);
+        }
+
+        function sendToBackend(formData) {
+          $.ajax({
+            type: "POST",
+            url: "/generate_notes",
+            contentType: false,
+            processData: false,
+            data: formData,
+            success: function (response) {
+              // Display the generated notes
+              $("#outputTextarea").val(response.notes);
+              $("#outputDiv").show();
+            },
+            error: function (error) {
+              console.error("Error:", error);
+            },
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <form id="noteForm" enctype="multipart/form-data">
+      <h1>Note Taker</h1>
+
+      <div>
+        <input
+          type="radio"
+          id="textInput"
+          name="inputType"
+          value="textInput"
+          checked
+        />
+        <label for="textInput">Text Input</label>
+        <input type="text" id="noteInput" placeholder="Enter text here" />
+      </div>
+
+      <div>
+        <input type="radio" id="fileInput" name="inputType" value="fileInput" />
+        <label for="fileInput">Upload File</label>
+        <input type="file" id="fileUpload" name="file" />
+      </div>
+
+      <button id="generateBtn" type="button">Generate Notes</button>
+
+      <div id="outputDiv" style="display: none">
+        <h2>Generated Notes</h2>
+        <textarea id="outputTextarea" readonly></textarea>
+      </div>
+      <input type="hidden" id="inputType" name="inputType" value="" />
+    </form>
+  </body>
+</html>
