@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from openai import OpenAI
 from flask_cors import CORS
-import webbrowser
 import PyPDF2
 from docx import Document
 
@@ -84,8 +83,3 @@ def generate_notes():
 
     # Return a JSON response with a generic error message
     return jsonify({"error": "Internal Server Error"}), 500
-
-
-def open_browser():
-    # Open the default web browser with the Flask app URL
-    webbrowser.open("http://127.0.0.1:5000/")
