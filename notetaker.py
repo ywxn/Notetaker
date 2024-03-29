@@ -80,7 +80,7 @@ def generate_notes():
 
         # Process the input data and generate notes using the OpenAI API
         completion = client.completions.create(
-            model="gpt-3.5-turbo", prompt=prompt, max_tokens=200
+            model="gpt-3.5-turbo-instruct", prompt=prompt, max_tokens=50
         )
 
         notes = completion.choices[0].text.strip()
