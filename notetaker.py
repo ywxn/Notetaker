@@ -3,6 +3,11 @@ from openai import OpenAI
 from flask_cors import CORS
 import PyPDF2
 from docx import Document
+import os
+
+# Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Loads the OpenAI API key from a file
 with open("OPENAI_API_KEY", "r") as file:
@@ -11,53 +16,53 @@ with open("OPENAI_API_KEY", "r") as file:
 # Set the OpenAI API key
 client = OpenAI(api_key=api_key)
 
-
 # Helper functions
+def parse_text(file_path):
+    # check if plain text file
+    with open(file_path, "r") as file:
+        text = file.read()
+    return text
+
+
 def parse_docx(file_path):
     doc = Document(file_path)
     text = " ".join([paragraph.text for paragraph in doc.paragraphs])
     return text
 
-
 def parse_pdf(file_path):
     pdf_file_obj = open(file_path, "rb")
-    pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+    pdf_reader = PyPDF2.PdfReader(pdf_file_obj)
     text = ""
-    for page_num in range(pdf_reader.numPages):
-        page_obj = pdf_reader.getPage(page_num)
-        text += page_obj.extractText()
+    for page_num in range(len(pdf_reader.pages)):
+        page_obj = pdf_reader.pages[page_num]
+        text += page_obj.extract_text()
     pdf_file_obj.close()
     return text
-
-
-# Flask app
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 @app.route("/generate_notes", methods=["POST"])
 def generate_notes():
     input_type = request.form.get("inputType")
 
-    if input_type == "pdf":
+    if input_type == "fileInput":
         file = request.files.get("file")
-        file.save("temp.pdf")
-        input_data = parse_pdf("temp.pdf")
-        file.rm("temp.pdf")
-    elif input_type == "docx":
-        file = request.files.get("file")
-        file.save("temp.docx")
-        input_data = parse_docx("temp.docx")
-        file.rm("temp.docx")
-    else:
-        input_data = request.form.get("inputData")
+        file_path = os.path.join("uploads", file.filename)
+        file.save(file_path)
 
-    # Validate the input
+        if file_path.endswith(".txt"):
+            input_data = parse_text(file_path)
+        elif file_path.endswith(".pdf"):
+            input_data = parse_pdf(file_path)
+        elif file_path.endswith(".docx"):
+            input_data = parse_docx(file_path)
+
+        os.remove(file_path)
+    else:
+        input_data = request.form.get("noteInput")
+
     if not input_type or not input_data:
         return jsonify({"error": "Invalid input"}), 400
 
@@ -69,7 +74,7 @@ def generate_notes():
 
         # Process the input data and generate notes using the OpenAI API
         completion = client.completions.create(
-            model="text-davinci-003", prompt=prompt, max_tokens=200
+            model="gpt-3.5-turbo", prompt=prompt, max_tokens=200
         )
 
         notes = completion.choices[0].text.strip()
@@ -78,8 +83,9 @@ def generate_notes():
         return jsonify({"notes": notes})
 
     except Exception as e:
-        # Log the exception details
         app.logger.error("An error occurred: %s", str(e))
 
-    # Return a JSON response with a generic error message
     return jsonify({"error": "Internal Server Error"}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
