@@ -11,17 +11,14 @@ else
     port=5000
 fi
 
-# Use `python3` instead of `py` to run Python scripts
-python3 -c "from waitress import serve; from notetaker import app; serve(app, port=$port)" &
-
-# Wait for the server to start before opening the browser
-sleep 5
-
 # Check for the operating system and open the browser accordingly
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    open http://localhost:5000
+    open http://localhost:$port
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    xdg-open http://localhost:5000
+    xdg-open http://localhost:$port
 elif [[ "$OSTYPE" == "msys" ]]; then
-    start http://localhost:5000
+    start http://localhost:$port
 fi
+
+# Use `python3` instead of `py` to run Python scripts
+python3 -c "from waitress import serve; from notetaker import app; serve(app, port=$port)"
