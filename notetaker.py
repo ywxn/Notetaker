@@ -75,6 +75,7 @@ def generate_notes():
     try:
         # Prompt to extract important information and generate notes
         prompt = "Extract important information from the provided input enclosed in triple backticks and present it in a bulleted list of notes:\n\n"
+        prompt += "Limit yourself to 200 tokens."
         prompt += f"```{input_data}```\n"
         prompt += "Notes:\n- "
         
