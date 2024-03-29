@@ -11,5 +11,22 @@ else
     port=5000
 fi
 
+# Open webpage after doing an os check
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    xdg-open http://localhost:$port
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    open http://localhost:$port
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+    start http://localhost:$port
+elif [[ "$OSTYPE" == "msys" ]]; then
+    start http://localhost:$port
+elif [[ "$OSTYPE" == "win32" ]]; then
+    start http://localhost:$port
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+    xdg-open http://localhost:$port
+else
+    echo "Cannot open webpage. Please go to http://localhost:$port"
+fi
+
 # Start the server
 python3 ./host.py $port
