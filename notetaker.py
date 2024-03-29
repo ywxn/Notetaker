@@ -49,6 +49,7 @@ def generate_notes():
 
     if input_type == "fileInput":
         file = request.files.get("file")
+        os.mkdir("uploads")
         file_path = os.path.join("uploads", file.filename)
         file.save(file_path)
 
@@ -60,6 +61,7 @@ def generate_notes():
             input_data = parse_docx(file_path)
 
         os.remove(file_path)
+        os.removedirs("uploads")
     else:
         input_data = request.form.get("noteInput")
 
