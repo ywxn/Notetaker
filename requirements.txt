@@ -7,3 +7,5 @@ openai
 flask
 flask-cors
 waitress
+python-docx
+pypdf2
