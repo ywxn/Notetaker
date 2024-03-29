@@ -11,14 +11,5 @@ else
     port=5000
 fi
 
-# Check for the operating system and open the browser accordingly
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    open http://localhost:$port
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    xdg-open http://localhost:$port
-elif [[ "$OSTYPE" == "msys" ]]; then
-    start http://localhost:$port
-fi
-
-# Use `python3` instead of `py` to run Python scripts
-python3 -c "from waitress import serve; from notetaker import app; serve(app, port=$port)"
+# Start the server
+python3 ./host.py $port
